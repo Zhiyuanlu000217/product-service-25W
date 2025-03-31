@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+      - name: product-service
+        image: zeelu1/product-service:latest
+        ports:
+        - containerPort: 3060
+        env:
+        - name: PORT
+          value: "3060"
+        - name: MONGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: product-service-secrets
+              key: MONGO_USERNAME
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: product-service-secrets
+              key: MONGO_PASSWORD
+        - name: COSMOS_DB_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: product-service-secrets
+              key: COSMOS_DB_CONNECTION_STRING
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3060
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3060
+          initialDelaySeconds: 20
+          periodSeconds: 20 
