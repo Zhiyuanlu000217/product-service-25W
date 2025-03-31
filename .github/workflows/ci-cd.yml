@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  DOCKER_IMAGE: your-dockerhub-username/product-service
+  DOCKER_IMAGE: zeelu1/product-service
 
 jobs:
   build-and-push:
