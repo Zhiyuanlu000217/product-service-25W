@@ -60,12 +60,25 @@ app.get('/api/products/:sku', async (req, res) => {
 // Create new product
 app.post('/api/products', async (req, res) => {
     try {
-        const { name, sku, price } = req.body;
+        const { name, sku, price, description, imageUrl } = req.body;
         if (!name || !sku || !price) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
-        const result = await productsCollection.insertOne({ name, sku, price });
-        res.status(201).json({ id: result.insertedId, name, sku, price });
+        
+        // Create product object with required fields
+        const product = { name, sku, price };
+        
+        // Add optional fields if they exist
+        if (description) product.description = description;
+        if (imageUrl) product.imageUrl = imageUrl;
+        
+        const result = await productsCollection.insertOne(product);
+        
+        // Return all fields in the response
+        res.status(201).json({ 
+            id: result.insertedId, 
+            ...product 
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
